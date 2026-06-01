@@ -1,63 +1,75 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect } from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import { bus } from "@admin/event-bus";
 import Sidebar from "./components/Sidebar";
 import AppHeader from "./components/AppHeader";
 import RemoteModule from "./components/RemoteModule";
 
-type Page = "products" | "categories" | "product" | null;
+function Home() {
+  return (
+    <div className="flex items-center justify-center h-full text-gray-400">
+      <div className="text-center">
+        <p className="text-lg font-medium">Panel administracyjny</p>
+        <p className="text-sm mt-2">Wybierz pozycje z menu, aby zaczac.</p>
+      </div>
+    </div>
+  );
+}
 
-function App() {
-  const [activePage, setActivePage] = useState<Page>(null);
-  const [selectedSku, setSelectedSku] = useState<string | null>(null);
+function ProductPageRoute() {
+  const { sku } = useParams();
+  const navigate = useNavigate();
+  return (
+    <RemoteModule page="product" sku={sku} onBack={() => navigate("/products")} />
+  );
+}
+
+function Layout() {
+  const navigate = useNavigate();
 
   // Loosely coupled navigation: a product selected anywhere (e.g. the list)
-  // opens the product card. The shell owns the routing decision.
+  // is translated by the shell into a URL — the shell owns routing.
   useEffect(() => {
     const handleProductSelected = ({ sku }: { sku: string }) => {
-      setSelectedSku(sku);
-      setActivePage("product");
+      navigate(`/products/${encodeURIComponent(sku)}`);
     };
     bus.on("productSelected", handleProductSelected);
     return () => bus.off("productSelected", handleProductSelected);
-  }, []);
-
-  const handleNavChange = (page: string) => {
-    setActivePage(page as Page);
-    setSelectedSku(null);
-    bus.emit("navChange", page);
-  };
-
-  const sidebarActive = activePage === "product" ? "products" : activePage;
+  }, [navigate]);
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       <AppHeader />
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar activePage={sidebarActive} onNavChange={handleNavChange} />
+        <Sidebar />
         <main className="flex-1 overflow-auto p-6">
-          {activePage ? (
-            <Suspense fallback={<div className="p-8 text-gray-500">Loading...</div>}>
-              {activePage === "product" ? (
-                <RemoteModule
-                  page="product"
-                  sku={selectedSku ?? undefined}
-                  onBack={() => handleNavChange("products")}
-                />
-              ) : (
-                <RemoteModule page={activePage} />
-              )}
-            </Suspense>
-          ) : (
-            <div className="flex items-center justify-center h-full text-gray-400">
-              <div className="text-center">
-                <p className="text-lg font-medium">Panel administracyjny</p>
-                <p className="text-sm mt-2">Wybierz pozycje z menu, aby zaczac.</p>
-              </div>
-            </div>
-          )}
+          <Suspense fallback={<div className="p-8 text-gray-500">Loading...</div>}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/products" element={<RemoteModule page="products" />} />
+              <Route path="/products/:sku" element={<ProductPageRoute />} />
+              <Route path="/categories" element={<RemoteModule page="categories" />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
         </main>
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Layout />
+    </BrowserRouter>
   );
 }
 

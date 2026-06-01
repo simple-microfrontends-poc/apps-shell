@@ -1,16 +1,12 @@
 import React from "react";
-
-type SidebarProps = {
-  activePage: string | null;
-  onNavChange: (page: string) => void;
-};
+import { NavLink } from "react-router-dom";
 
 const menuItems = [
-  { key: "products", label: "Produkty", icon: "📦" },
-  { key: "categories", label: "Kategorie", icon: "📂" },
+  { to: "/products", label: "Produkty", icon: "📦" },
+  { to: "/categories", label: "Kategorie", icon: "📂" },
 ];
 
-function Sidebar({ activePage, onNavChange }: SidebarProps) {
+function Sidebar() {
   return (
     <aside className="w-56 bg-white border-r border-gray-200 flex flex-col">
       <div className="p-4 border-b border-gray-200">
@@ -19,18 +15,20 @@ function Sidebar({ activePage, onNavChange }: SidebarProps) {
       <nav className="flex-1 p-3">
         <ul className="space-y-1">
           {menuItems.map((item) => (
-            <li key={item.key}>
-              <button
-                onClick={() => onNavChange(item.key)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  activePage === item.key
-                    ? "bg-indigo-50 text-indigo-700"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                }`}
+            <li key={item.to}>
+              <NavLink
+                to={item.to}
+                className={({ isActive }) =>
+                  `w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-indigo-50 text-indigo-700"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                  }`
+                }
               >
                 <span className="text-lg">{item.icon}</span>
                 {item.label}
-              </button>
+              </NavLink>
             </li>
           ))}
         </ul>

@@ -52,6 +52,12 @@ export default {
         // Singleton event bus — without this each MFE bundles its own mitt()
         // instance and events never cross the federation boundary.
         "@admin/event-bus": { singleton: true, requiredVersion: false },
+        // Singleton router — shell owns the single <BrowserRouter>; remotes that
+        // add their own routes must share this same instance (one history/context).
+        // `react-router` (core) holds the Router contexts, so it must be a
+        // singleton too — otherwise a remote can't see the host's <BrowserRouter>.
+        "react-router-dom": { singleton: true, requiredVersion: deps["react-router-dom"] },
+        "react-router": { singleton: true, requiredVersion: false },
       },
       dts: false,
     }),
