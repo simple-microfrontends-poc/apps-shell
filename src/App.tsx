@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from "react";
+import React, { Suspense, useEffect, useRef } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -6,6 +6,7 @@ import {
   Navigate,
   useNavigate,
   useParams,
+  useLocation,
 } from "react-router-dom";
 import { bus } from "@admin/event-bus";
 import Sidebar from "./components/Sidebar";
@@ -26,19 +27,28 @@ function Home() {
 function ProductPageRoute() {
   const { sku } = useParams();
   const navigate = useNavigate();
-  return (
-    <RemoteModule page="product" sku={sku} onBack={() => navigate("/products")} />
-  );
+  const location = useLocation();
+  // Set when we arrived from the list (see Layout) — carries the list URL with
+  // its filters. Going back one history entry restores that exact list state.
+  const cameFromList = Boolean((location.state as { from?: string } | null)?.from);
+  const handleBack = () => (cameFromList ? navigate(-1) : navigate("/products"));
+  return <RemoteModule page="product" sku={sku} onBack={handleBack} />;
 }
 
 function Layout() {
   const navigate = useNavigate();
+  const location = useLocation();
+  // Latest location, readable inside the (once-subscribed) event handler.
+  const locationRef = useRef(location);
+  locationRef.current = location;
 
   // Loosely coupled navigation: a product selected anywhere (e.g. the list)
-  // is translated by the shell into a URL — the shell owns routing.
+  // is translated by the shell into a URL — the shell owns routing. We stash the
+  // current list URL (with its filters) so "back to list" can restore it.
   useEffect(() => {
     const handleProductSelected = ({ sku }: { sku: string }) => {
-      navigate(`/products/${encodeURIComponent(sku)}`);
+      const from = locationRef.current.pathname + locationRef.current.search;
+      navigate(`/products/${encodeURIComponent(sku)}`, { state: { from } });
     };
     bus.on("productSelected", handleProductSelected);
     return () => bus.off("productSelected", handleProductSelected);
