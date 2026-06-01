@@ -44,6 +44,7 @@ export default {
       remotes: {
         products: "products@http://localhost:3001/remoteEntry.js",
         categories: "categories@http://localhost:3002/remoteEntry.js",
+        productPage: "productPage@http://localhost:3004/remoteEntry.js",
       },
       shared: {
         react: { singleton: true, requiredVersion: deps.react },

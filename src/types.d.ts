@@ -9,3 +9,13 @@ declare module "categories/App" {
   const App: React.ComponentType;
   export default App;
 }
+
+declare module "productPage/App" {
+  import type React from "react";
+  export interface ProductPageProps {
+    sku?: string;
+    onBack?: () => void;
+  }
+  const App: React.ComponentType<ProductPageProps>;
+  export default App;
+}

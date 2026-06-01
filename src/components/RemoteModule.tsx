@@ -1,13 +1,18 @@
 import React from "react";
 
+type Page = "products" | "categories" | "product";
+
 type RemoteModuleProps = {
-  page: "products" | "categories";
+  page: Page;
+  sku?: string;
+  onBack?: () => void;
 };
 
-const remotes = {
+const remotes: Record<Page, React.LazyExoticComponent<React.ComponentType<any>>> = {
   products: React.lazy(() => import("products/App")),
   categories: React.lazy(() => import("categories/App")),
-} as const;
+  product: React.lazy(() => import("productPage/App")),
+};
 
 class RemoteErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -32,11 +37,12 @@ class RemoteErrorBoundary extends React.Component<
   }
 }
 
-function RemoteModule({ page }: RemoteModuleProps) {
+function RemoteModule({ page, sku, onBack }: RemoteModuleProps) {
   const Component = remotes[page];
+  const props = page === "product" ? { sku, onBack } : {};
   return (
     <RemoteErrorBoundary key={page}>
-      <Component />
+      <Component {...props} />
     </RemoteErrorBoundary>
   );
 }

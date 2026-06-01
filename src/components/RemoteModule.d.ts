@@ -1,6 +1,9 @@
+type Page = "products" | "categories" | "product";
 type RemoteModuleProps = {
-    page: "products" | "categories";
+    page: Page;
+    sku?: string;
+    onBack?: () => void;
 };
-declare function RemoteModule({ page }: RemoteModuleProps): import("react/jsx-runtime").JSX.Element;
+declare function RemoteModule({ page, sku, onBack }: RemoteModuleProps): import("react/jsx-runtime").JSX.Element;
 export default RemoteModule;
 //# sourceMappingURL=RemoteModule.d.ts.map
