@@ -30,9 +30,9 @@ describe("shell App — routing", () => {
     expect(await screen.findByTestId("remote-categories")).toBeInTheDocument();
   });
 
-  it("renders the product remote with the sku from the URL", async () => {
-    renderAt("/products/SKU-9");
-    expect(await screen.findByText("product remote: SKU-9")).toBeInTheDocument();
+  it("renders the product remote with the id from the URL", async () => {
+    renderAt("/products/9");
+    expect(await screen.findByText("product remote: 9")).toBeInTheDocument();
   });
 
   it("redirects unknown routes back to home", () => {
@@ -55,10 +55,10 @@ describe("shell App — event-bus navigation", () => {
     await screen.findByTestId("remote-products");
 
     await act(async () => {
-      bus.emit("productSelected", { sku: "A1" });
+      bus.emit("productSelected", { id: 1 });
     });
 
-    expect(await screen.findByText("product remote: A1")).toBeInTheDocument();
+    expect(await screen.findByText("product remote: 1")).toBeInTheDocument();
   });
 
   it("goes back to the list (history) after arriving from the list", async () => {
@@ -67,9 +67,9 @@ describe("shell App — event-bus navigation", () => {
     await screen.findByTestId("remote-products");
 
     await act(async () => {
-      bus.emit("productSelected", { sku: "A1" });
+      bus.emit("productSelected", { id: 1 });
     });
-    await screen.findByText("product remote: A1");
+    await screen.findByText("product remote: 1");
 
     // Arrived from the list -> back uses history and restores it.
     await user.click(screen.getByRole("button", { name: "stub-back" }));
@@ -78,8 +78,8 @@ describe("shell App — event-bus navigation", () => {
 
   it("falls back to /products on back when deep-linked directly", async () => {
     const user = userEvent.setup();
-    renderAt("/products/DEEP");
-    await screen.findByText("product remote: DEEP");
+    renderAt("/products/7");
+    await screen.findByText("product remote: 7");
 
     await user.click(screen.getByRole("button", { name: "stub-back" }));
     expect(await screen.findByTestId("remote-products")).toBeInTheDocument();

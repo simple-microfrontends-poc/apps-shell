@@ -4,7 +4,7 @@ type Page = "products" | "categories" | "product";
 
 type RemoteModuleProps = {
   page: Page;
-  sku?: string;
+  id?: number;
   onBack?: () => void;
 };
 
@@ -37,9 +37,9 @@ class RemoteErrorBoundary extends React.Component<
   }
 }
 
-function RemoteModule({ page, sku, onBack }: RemoteModuleProps) {
+function RemoteModule({ page, id, onBack }: RemoteModuleProps) {
   const Component = remotes[page];
-  const props = page === "product" ? { sku, onBack } : {};
+  const props = page === "product" ? { id, onBack } : {};
   return (
     <RemoteErrorBoundary key={page}>
       <Component {...props} />

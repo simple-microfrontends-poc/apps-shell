@@ -25,14 +25,20 @@ function Home() {
 }
 
 function ProductPageRoute() {
-  const { sku } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   // Set when we arrived from the list (see Layout) — carries the list URL with
   // its filters. Going back one history entry restores that exact list state.
   const cameFromList = Boolean((location.state as { from?: string } | null)?.from);
   const handleBack = () => (cameFromList ? navigate(-1) : navigate("/products"));
-  return <RemoteModule page="product" sku={sku} onBack={handleBack} />;
+  return (
+    <RemoteModule
+      page="product"
+      id={id ? Number(id) : undefined}
+      onBack={handleBack}
+    />
+  );
 }
 
 function Layout() {
@@ -46,9 +52,9 @@ function Layout() {
   // is translated by the shell into a URL — the shell owns routing. We stash the
   // current list URL (with its filters) so "back to list" can restore it.
   useEffect(() => {
-    const handleProductSelected = ({ sku }: { sku: string }) => {
+    const handleProductSelected = ({ id }: { id: number }) => {
       const from = locationRef.current.pathname + locationRef.current.search;
-      navigate(`/products/${encodeURIComponent(sku)}`, { state: { from } });
+      navigate(`/products/${id}`, { state: { from } });
     };
     bus.on("productSelected", handleProductSelected);
     return () => bus.off("productSelected", handleProductSelected);
@@ -64,7 +70,7 @@ function Layout() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/products" element={<RemoteModule page="products" />} />
-              <Route path="/products/:sku" element={<ProductPageRoute />} />
+              <Route path="/products/:id" element={<ProductPageRoute />} />
               <Route path="/categories" element={<RemoteModule page="categories" />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

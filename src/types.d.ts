@@ -13,7 +13,7 @@ declare module "categories/App" {
 declare module "productPage/App" {
   import type React from "react";
   export interface ProductPageProps {
-    sku?: string;
+    id?: number;
     onBack?: () => void;
   }
   const App: React.ComponentType<ProductPageProps>;

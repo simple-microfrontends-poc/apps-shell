@@ -20,12 +20,12 @@ describe("RemoteModule", () => {
     expect(await screen.findByTestId("remote-categories")).toBeInTheDocument();
   });
 
-  it("passes sku and onBack to the product remote", async () => {
+  it("passes id and onBack to the product remote", async () => {
     const onBack = vi.fn();
     const user = userEvent.setup();
-    renderRemote(<RemoteModule page="product" sku="A1" onBack={onBack} />);
+    renderRemote(<RemoteModule page="product" id={1} onBack={onBack} />);
 
-    expect(await screen.findByText("product remote: A1")).toBeInTheDocument();
+    expect(await screen.findByText("product remote: 1")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "stub-back" }));
     expect(onBack).toHaveBeenCalledTimes(1);
   });
@@ -33,7 +33,7 @@ describe("RemoteModule", () => {
   it("catches a failing remote with the error boundary", async () => {
     // Boundary logs the caught error — silence the expected noise.
     vi.spyOn(console, "error").mockImplementation(() => {});
-    renderRemote(<RemoteModule page="product" sku="__throw__" />);
+    renderRemote(<RemoteModule page="product" id={-1} />);
 
     expect(await screen.findByText("Blad ładowania")).toBeInTheDocument();
     expect(screen.getByText("stub boom")).toBeInTheDocument();
