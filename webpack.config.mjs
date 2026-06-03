@@ -31,6 +31,10 @@ export default (_env, argv) => {
   const mode = argv.mode ?? "production";
   loadEnv(mode);
 
+  // publicPath must end with "/", else webpack concatenates chunk names straight
+  // onto it (e.g. "http://example.com" + "main.js" -> "http://example.commain.js").
+  const publicPath = (process.env.PUBLIC_PATH ?? "http://localhost:3000/").replace(/\/*$/, "/");
+
   // `name@url` remote entry; URL from env, dev localhost as fallback.
   const remote = (name, envVar, fallback) =>
     `${name}@${process.env[envVar] ?? fallback}`;
@@ -43,7 +47,7 @@ export default (_env, argv) => {
       path: path.join(__dirname, "dist"),
       filename: "[name].[contenthash].js",
       clean: true,
-      publicPath: process.env.PUBLIC_PATH ?? "http://localhost:3000/",
+      publicPath,
     },
     module: {
       rules: [
